@@ -81,4 +81,20 @@ class Obj {
 		return triangleVertices;
 	}
 	
+	public float[] getVerticesX() {
+		return new float[] { 0, width, width, 0 };
+	}
+	
+	public float[] getVerticesY() {
+		return new float[] { 0,	0, height, height };
+	}
+	
+	public float[] getTextureX() {
+		return new float[] { quad.x, quad.x + quad.width, quad.x + quad.width, quad.x };
+	}
+	
+	public float[] getTextureY() {
+		return new float[] { quad.y + quad.height, quad.y + quad.height, quad.y, quad.y };
+	}
+	
 }

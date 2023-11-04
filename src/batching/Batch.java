@@ -10,6 +10,10 @@ public class Batch {
 		texturePath = path;
 	}
 	
+	public int getSize() {
+		return objects.length;
+	}
+	
 	public float[] getVertices(int width, int height) {
 		float[] vertices = new float[objects.length * 6 * 8];
 		for (int i = 0; i < objects.length; i++) {

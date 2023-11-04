@@ -1,6 +1,7 @@
 package batching;
 
 import java.util.ArrayList;
+import java.util.Random;
 
 public class Scene {
 	
@@ -23,7 +24,19 @@ public class Scene {
 		objects[depth].add(new Obj(quad, transform, x, y, width, height));
 	}
 	
-	private ArrayList<Obj> sortObjects() {
+	public void shuffle() {
+		Random rand = new Random(0);
+		for (ArrayList<Obj> list : objects) {
+			for (int i = 0; i < list.size(); i++) {
+				Obj temp = list.get(i);
+				int j = rand.nextInt(list.size());
+				list.set(i, list.get(j));
+				list.set(j, temp);
+			}
+		}
+	}
+	
+	public ArrayList<Obj> allObjects() {
 		ArrayList<Obj> order = new ArrayList<Obj>();
 		// TODO: optimize
 		for (ArrayList<Obj> list : objects) {
@@ -33,7 +46,7 @@ public class Scene {
 	}
 	
 	public BatchIterator getBatchIterator() {
-		return new BatchIterator(sortObjects());
+		return new BatchIterator(allObjects());
 	}
 	
 }
