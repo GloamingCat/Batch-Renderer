@@ -1,16 +1,9 @@
 package rendering;
 
-import static org.lwjgl.opengl.GL15.GL_ARRAY_BUFFER;
-import static org.lwjgl.opengl.GL15.GL_STATIC_DRAW;
-import static org.lwjgl.opengl.GL15.glBindBuffer;
-import static org.lwjgl.opengl.GL15.glBufferData;
-import static org.lwjgl.opengl.GL15.glDeleteBuffers;
-import static org.lwjgl.opengl.GL15.glGenBuffers;
-import static org.lwjgl.opengl.GL20.glEnableVertexAttribArray;
-import static org.lwjgl.opengl.GL20.glVertexAttribPointer;
-import static org.lwjgl.opengl.GL30.glBindVertexArray;
-import static org.lwjgl.opengl.GL30.glDeleteVertexArrays;
-import static org.lwjgl.opengl.GL30.glGenVertexArrays;
+import static org.lwjgl.opengl.GL15.*;
+import static org.lwjgl.opengl.GL20.*;
+import static org.lwjgl.opengl.GL30.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
 
 import java.util.ArrayList;
 
@@ -19,6 +12,10 @@ public class VertexArray {
 	public final ArrayList<Vertex> vertices;
 	
 	private int vaoId, vboId;
+	private int nFloats = Vertex.totalSize;
+	
+	//////////////////////////////////////////////////
+	// {{ Constructors
 	
 	public VertexArray() {
 		vertices = new ArrayList<Vertex>();
@@ -33,11 +30,24 @@ public class VertexArray {
 	
 	public VertexArray(float[] data, int n) {
 		vertices = new ArrayList<Vertex>(n);
-		int nAtt = data.length / n;
+		nFloats = data.length / n;
 		for (int i = 0; i < n; i++) {
 			Vertex vertex = new Vertex();
-			vertex.set(data, nAtt * i);
+			vertex.set(data, nFloats * i);
 			vertices.add(vertex);
+		}
+	}
+	
+	// }}
+	
+	//////////////////////////////////////////////////
+	// {{ Data update
+	
+	public void set(float[] data, int n) {
+		nFloats = data.length / n;
+		n = Math.min(n, vertices.size());
+		for (int i = 0; i < n; i++) {
+			vertices.get(i).set(data, nFloats * i);
 		}
 	}
 	
@@ -69,37 +79,58 @@ public class VertexArray {
 		}
 	}
 	
+	// }}
+	
+	//////////////////////////////////////////////////
+	// {{ Buffer
+	
 	public float[] toArray() {
-		return toArray(Vertex.totalSize);
+		return toArray(nFloats);
 	}
 	
-	public float[] toArray(int nNumbers) {
-		float[] buffer = new float[nNumbers * vertices.size()];
-		for (int i = 0; i < vertices.size(); i ++) {
-			vertices.get(i).put(buffer, nNumbers*i);
+	public float[] toArray(int nFloats) {
+		return toBuffer(vertices.size(), nFloats);
+	}
+	
+	public float[] toBuffer(int n) {
+		return toBuffer(n, nFloats);
+	}
+	
+	public float[] toBuffer(int n, int nFloats) {
+		float[] buffer = new float[nFloats * n];
+		for (int i = 0; i < n; i ++) {
+			vertices.get(i).put(buffer, nFloats*i);
 		}
 		return buffer;
 	}
+	
+	// }}
+	
+	//////////////////////////////////////////////////
+	// {{ VAO
 	
 	public int getVaoId() {
 		return vaoId;
 	}
 	
-	public void initVAO(int[] attributes) {
-		int vertexSize = 0;
+	public void bind() {
+		glBindVertexArray(vaoId);
+	}
+	
+	public void unbind() {
+		glBindVertexArray(0);
+	}
+	
+	public void initVAO(int[] attributes, int vertexSize) {
 		int nAtt = attributes.length / 3;
-		for (int i = 0; i < nAtt; i++) {
-			int typeSize = attributes[3*i+1];
-			int n = attributes[3*i+2];
-			vertexSize += typeSize * n;
-		}
-		int nFloats = vertexSize / 4;
-		float[] buffer = toArray(nFloats); // 
+		nFloats = vertexSize / 4;
+		float[] buffer = toArray(nFloats);
 		vaoId = glGenVertexArrays();
 		glBindVertexArray(vaoId);
 		vboId = glGenBuffers();
 		glBindBuffer(GL_ARRAY_BUFFER, vboId);
-		glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
+		if (buffer.length > 0)
+			glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
 		int pos = 0;
 		for (int i = 0; i < nAtt; i++) {
 			int type = attributes[3*i];
@@ -113,16 +144,51 @@ public class VertexArray {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 	
+	public void updateVAO(float[] buffer) {
+		if (vaoId ==  NULL)
+			throw new RuntimeException("VAO not initialized!");
+		glBindVertexArray(vaoId);
+		glBindBuffer(GL_ARRAY_BUFFER, vboId);
+		glBufferData(GL_ARRAY_BUFFER, buffer, GL_DYNAMIC_DRAW);
+	}
+	
+	public void updateVAO() {
+		updateVAO(toArray(nFloats));
+	}
+	
+	public void updateVAO(int n, int nFloats) {
+		updateVAO(toBuffer(n, nFloats));
+	}
+	
+	public void updateVAO(int n, int[] attributes) {
+		int vertexSize = 0;
+		int nAtt = attributes.length / 3;
+		for (int i = 0; i < nAtt; i++) {
+			int typeSize = attributes[3*i+1];
+			int na = attributes[3*i+2];
+			vertexSize += typeSize * na;
+		}
+		int nFloats = vertexSize / 4;
+		updateVAO(n, nFloats);
+	}
+	
 	public void dispose() {
 		glDeleteBuffers(vboId);
 		glDeleteVertexArrays(vaoId);
 	}
 	
+	// }}
+
+	//////////////////////////////////////////////////
+	// {{ Static methods
+
 	public static VertexArray quad(float x, float y, float w, float h) {
 		VertexArray array = new VertexArray(4);
 		array.setPositions(new float[] { x, x+w, x+w, x }, new float[] { y, y, y+h, y+h});
 		array.setUVs(new float[] { 0.0f, 1.0f, 1.0f, 0.0f }, new float[] { 0.0f, 0.0f, 1.0f, 1.0f });
 		return array;
 	}
+	
+	// }}
 
 }

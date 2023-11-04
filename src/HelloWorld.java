@@ -8,7 +8,6 @@ public class HelloWorld {
 	private Screen screen;
 	private Renderer renderer;
 	private ShaderProgram shader;
-	private Context context;
 	
 	Texture ralsei;
 	VertexArray quad;
@@ -18,7 +17,7 @@ public class HelloWorld {
 	}
 
 	public void run() {
-		context = new Context(WINDOW_WIDTH, WINDOW_HEIGHT) {
+		Context context = new Context(WINDOW_WIDTH, WINDOW_HEIGHT) {
 			public void render() {
 				drawTest();
 			}
@@ -27,6 +26,7 @@ public class HelloWorld {
 		init();
 		context.show();
 		context.dispose();
+		clear();
 	}
 	
 	private void init() {
@@ -40,8 +40,8 @@ public class HelloWorld {
 		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
 		renderer = new Renderer();
 		renderer.setBackgroundColor(43, 43, 0, 0); // Dark yellow
-		quad = VertexArray.quad(0, 0, ralsei.width, ralsei.width);
-		quad.initVAO(shader.attributes);
+		quad = VertexArray.quad(0, 0, ralsei.width, ralsei.height);
+		quad.initVAO(shader.attributes, shader.vertexSize);
 		renderer.resetBindings();
 		shader.bind();
 		screen.bind(shader);
@@ -52,6 +52,13 @@ public class HelloWorld {
 		renderer.fillBackground();
 		renderer.drawQuads(quad.getVaoId(), 4);
 		renderer.resetBindings();
+	}
+	
+	private void clear() {
+		ralsei.dispose();
+		quad.dispose();
+		screen.dispose();
+		shader.dispose();
 	}
 
 }

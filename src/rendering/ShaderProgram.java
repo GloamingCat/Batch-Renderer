@@ -43,6 +43,8 @@ public class ShaderProgram {
 	private int id;
 
 	public final int[] attributes;
+	public final int vertexSize;
+	
 
 	public ShaderProgram(int vertShader, int fragShader, int[] attributes, int nTextures) {
 		id = createProgram(vertShader, fragShader);
@@ -61,6 +63,14 @@ public class ShaderProgram {
 		if (error != GL_NO_ERROR) {
 			System.err.println("Shader Error: " + error);
 		}
+		int vertexSize = 0;
+		int nAtt = attributes.length / 3;
+		for (int i = 0; i < nAtt; i++) {
+			int typeSize = attributes[3*i+1];
+			int n = attributes[3*i+2];
+			vertexSize += typeSize * n;
+		}
+		this.vertexSize = vertexSize;
 	}
 
 	public ShaderProgram(String vertShader, String fragShader, int[] attributes, int nTextures) throws Exception {

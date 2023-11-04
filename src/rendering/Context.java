@@ -60,7 +60,7 @@ public abstract class Context {
 	
 	public void show() {
 		if (window ==  NULL)
-			throw new RuntimeException("Context now initialized!");
+			throw new RuntimeException("Context not initialized!");
 		glfwShowWindow(window);
 		while ( !glfwWindowShouldClose(window) ) {
 			render();

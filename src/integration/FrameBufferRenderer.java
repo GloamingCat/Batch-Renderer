@@ -19,7 +19,7 @@ public abstract class FrameBufferRenderer {
 		renderer.setBackgroundColor(43, 0, 43, 0); // Dark purple
 		fb = new Screen(main.width, main.height, width, height);
 		fbQuad = VertexArray.quad(0, 0, main.width, main.height);
-		fbQuad.initVAO(shader.attributes);
+		fbQuad.initVAO(shader.attributes, shader.vertexSize);
 		renderToBuffer();
 	}
 	
@@ -40,4 +40,8 @@ public abstract class FrameBufferRenderer {
 	
 	public abstract void drawContent();
 	
+	public void dispose() {
+		fb.dispose();
+		fbQuad.dispose();
+	}
 }

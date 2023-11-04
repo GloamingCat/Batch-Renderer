@@ -40,41 +40,47 @@ class Obj {
 		return p;
 	}
 	
-	public float[] getQuadVertices(float texWidth, float texHeight) {
-		float[] p = getTransformedVertices();
-		float[] quadVertices = new float[4 * 8];
+	public float[] getQuadVertices(float texWidth, float texHeight, int nFloats) {
+		float[] v = getTransformedVertices();
+		float[] quadVertices = new float[4 * nFloats];
 		int q_offset = 0;
-		for (int v_offset = 0; v_offset < p.length; v_offset += 4) {
+		for (int v_offset = 0; v_offset < v.length; v_offset += 4) {
 			// Position
-			quadVertices[q_offset] = p[v_offset] + x;
-			quadVertices[q_offset + 1] = p[v_offset + 1] + y;
-			// Color
-			// TODO: HSV
-			quadVertices[q_offset + 2] = transform.red / 255f;
-			quadVertices[q_offset + 3] = transform.green / 255f;
-			quadVertices[q_offset + 4] = transform.blue / 255;
-			quadVertices[q_offset + 5] = transform.alpha / 255f;
-			// Texture
-			quadVertices[q_offset + 6] = p[v_offset + 2] / texWidth;
-			quadVertices[q_offset + 7] = 1 - p[v_offset + 3] / texHeight;
-			q_offset += 8;
+			quadVertices[q_offset] = v[v_offset] + x;
+			quadVertices[q_offset + 1] = v[v_offset + 1] + y;
+			try {
+				// Texture
+				quadVertices[q_offset + 2] = v[v_offset + 2] / texWidth;
+				quadVertices[q_offset + 3] = 1 - v[v_offset + 3] / texHeight;
+				// Color
+				// TODO: HSV
+				quadVertices[q_offset + 4] = transform.red / 255f;
+				quadVertices[q_offset + 5] = transform.green / 255f;
+				quadVertices[q_offset + 6] = transform.blue / 255;
+				quadVertices[q_offset + 7] = transform.alpha / 255f;
+			} catch (IndexOutOfBoundsException e) {}
+			q_offset += nFloats;
 		}
 		return quadVertices;
 	}
 	
-	public float[] getTriangleVertices(int texWidth, int texHeight) {
-		float[] quadVertices = getQuadVertices(texWidth, texHeight);
-		float[] triangleVertices = new float[6 * 8];
+	public float[] getQuadVertices(float texWidth, float texHeight) {
+		return getQuadVertices(texWidth, texHeight, 8);
+	}
+	
+	public float[] getTriangleVertices(int texWidth, int texHeight, int nFloats) {
+		float[] quadVertices = getQuadVertices(texWidth, texHeight, nFloats);
+		float[] triangleVertices = new float[6 * nFloats];
 		
 		int[] indexes = new int[] {0, 1, 2, 0, 2, 3};
 		int tv_offset = 0; // offset to triangle vertex
-		for (int q_offset = 0; q_offset < quadVertices.length; q_offset += 4 * 8) { // for each quad starting index q (4 vertices, 8 properties/vertex)
+		for (int q_offset = 0; q_offset < quadVertices.length; q_offset += 4 * nFloats) { // for each quad starting index q (4 vertices, 8 properties/vertex)
 			for (int i = 0; i < 6; i++) { // for each vertex starting index
-				int v_offset = indexes[i] * 8;
+				int v_offset = indexes[i] * nFloats;
 				// Copy each property from quads[q + v] to triangles[t]
-				for (int p = 0; p < 8; p++)
+				for (int p = 0; p < nFloats; p++)
 					triangleVertices[tv_offset + p] = quadVertices[q_offset + v_offset + p];
-				tv_offset += 8;
+				tv_offset += nFloats;
 			}
 		}
 		
