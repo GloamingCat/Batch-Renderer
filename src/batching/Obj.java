@@ -59,7 +59,7 @@ public class Obj {
 				quadVertices[q_offset + 6] = transform.blue / 255f;
 				quadVertices[q_offset + 7] = transform.alpha / 255f;
 				// HSV
-				quadVertices[q_offset + 8] = transform.hue;
+				quadVertices[q_offset + 8] = transform.hue / 360f;
 				quadVertices[q_offset + 9] = transform.saturation / 100f;
 				quadVertices[q_offset + 10] = transform.brightness / 100f;			
 			} catch (IndexOutOfBoundsException e) {}
