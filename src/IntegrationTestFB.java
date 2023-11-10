@@ -41,7 +41,7 @@ public class IntegrationTestFB {
 			System.exit(1);
 		}
 		shader.bind();
-		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT, true);
 		ralsei = Texture.load("ralsei.png", 4);
 		renderer = new Renderer();
 		renderer.setBackgroundColor(43, 43, 0, 0); // Dark yellow
@@ -54,14 +54,12 @@ public class IntegrationTestFB {
 				drawTest();
 			}
 		};
-		screen.bind(shader);
 	}
 	
 	private void drawTest() {
 		ralsei.bind();
 		renderer.fillBackground();
-		renderer.drawQuads(quad.getVaoId(), 4);
-		renderer.resetBindings();
+		renderer.drawQuads(quad.getVaoId(), quad.vertices.size());
 	}
 	
 	private void clear() {

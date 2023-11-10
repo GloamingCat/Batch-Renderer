@@ -21,23 +21,19 @@ public class Screen {
 	private final FloatBuffer projectionMatrixBuffer;
 	private final Matrix4f projectionMatrix;
 
-	public Screen(int width, int height) {
+	public Screen(int width, int height, boolean isWindow) {
 		this.width = width;
 		this.height = height;
-		id = 0;
-		texture = null;
-		projectionMatrix = Matrix4f.orthographic(0, width, height, 0, 1, -1);
-		projectionMatrixBuffer = MemoryUtil.memAllocFloat(16);
-		projectionMatrix.toBuffer(projectionMatrixBuffer);
-	}
-	
-	public Screen(int width, int height, int twidth, int theight) {
-		this.width = twidth;
-		this.height = theight;
-		id = glGenFramebuffers();
-		texture = new Texture(twidth, theight, 4);
-		texture.bindToFrameBuffer(id);
-		projectionMatrix = Matrix4f.orthographic(0, width, 0, height, 1, -1);
+		if (isWindow) {
+			id = 0;
+			texture = null;
+			projectionMatrix = Matrix4f.orthographic(0, width, height, 0, 1, -1);
+		} else {
+			id = glGenFramebuffers();
+			texture = new Texture(width, height, 4);
+			texture.bindToFrameBuffer(id);
+			projectionMatrix = Matrix4f.orthographic(0, width, 0, height, 1, -1);
+		}
 		projectionMatrixBuffer = MemoryUtil.memAllocFloat(16);
 		projectionMatrix.toBuffer(projectionMatrixBuffer);
 	}
@@ -47,19 +43,23 @@ public class Screen {
 		if (program != null) {
 			int location = program.getUniformLocation("projection");
 			glUniformMatrix4fv(location, false, projectionMatrixBuffer);
-		} else {
-			glMatrixMode(GL_PROJECTION);
-			glLoadIdentity();
-			glOrtho(0, width, height, 0, 1, -1);
-			glMatrixMode(GL_MODELVIEW);
 		}
+		glMatrixMode(GL_PROJECTION);
+		glLoadIdentity();
+		glOrtho(0, width, height, 0, 1, -1);
+		glMatrixMode(GL_MODELVIEW);
+		glViewport(0, 0, width, height);
+	}
+	
+	public void dispose(boolean keepTexture) {
+		if (id != 0)
+			glDeleteFramebuffers(id);
+		if (texture != null && !keepTexture)
+			texture.dispose();
 	}
 
 	public void dispose() {
-		if (id != 0)
-			glDeleteFramebuffers(id);
-		if (texture != null)
-			texture.dispose();
+		dispose(false);
 	}
 
 }

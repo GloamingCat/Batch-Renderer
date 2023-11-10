@@ -35,12 +35,13 @@ public abstract class Context {
 		if ( window == NULL )
 			throw new RuntimeException("Failed to create the GLFW window");
 		
-		glfwMakeContextCurrent(window);
+		bind();
 		GL.createCapabilities();
 		
 		//glEnable(GL_FRAMEBUFFER_SRGB);
 		glEnable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_LINE_STIPPLE);
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -48,6 +49,10 @@ public abstract class Context {
 		if (error != GL_NO_ERROR) {
 			System.err.println("Context Error: " + error);
 		}
+	}
+	
+	public void bind() {
+		glfwMakeContextCurrent(window);
 	}
 	
 	public void dispose() {

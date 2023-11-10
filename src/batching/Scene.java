@@ -6,6 +6,7 @@ import java.util.Random;
 public class Scene {
 	
 	private ArrayList<Obj>[] objects;
+	private int minDepth = 0;
 
 	@SuppressWarnings("unchecked")
 	public Scene(int depth) {
@@ -20,8 +21,7 @@ public class Scene {
 	}
 	
 	public void add(Quad quad, Transform transform, float x, float y, float width, float height, int depth) {
-		depth -= transform.offsetDepth;
-		objects[depth].add(new Obj(quad, transform, x, y, width, height));
+		objects[depth + minDepth].add(new Obj(quad, transform, x, y, width, height));
 	}
 	
 	public void shuffle() {

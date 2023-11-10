@@ -1,17 +1,17 @@
-uniform mat4 LProjectionMatrix;
-uniform mat4 LModelViewMatrix;
+#version 330 core
 
-#if __VERSION__ >= 130
-in vec2 LVertexPos2D;
-in vec2 LTexCoord;
-out vec2 texCoord;
-#else
-attribute vec2 LVertexPos2D;
-attribute vec2 LTexCoord;
-varying vec2 texCoord;
-#endif
+layout(location = 0) in vec2 position;
+layout(location = 1) in vec2 texCoords;
+layout(location = 2) in vec4 vertexColor; 
+layout(location = 3) in vec3 vertexHSV; 
+out vec2 fragTexCoords;
+out vec4 fragColor;
+out vec3 fragHSV;
+uniform mat4 projection; 
 
 void main() {
-    texCoord = LTexCoord;
-    gl_Position = LProjectionMatrix * LModelViewMatrix * vec4( LVertexPos2D.x, LVertexPos2D.y, 0.0, 1.0 );
+	gl_Position = projection * vec4( position.x, position.y, 0.0, 1.0 );
+	fragTexCoords = texCoords;
+	fragColor = vertexColor;
+	fragHSV = vertexHSV;
 }

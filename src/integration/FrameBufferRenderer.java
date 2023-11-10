@@ -17,25 +17,26 @@ public abstract class FrameBufferRenderer {
 		this.main = main;
 		renderer = new Renderer();
 		renderer.setBackgroundColor(43, 0, 43, 0); // Dark purple
-		fb = new Screen(main.width, main.height, width, height);
+		fb = new Screen(width, height, false);
 		fbQuad = VertexArray.quad(0, 0, main.width, main.height);
 		fbQuad.initVAO(shader.attributes, shader.vertexSize);
 		renderToBuffer();
 	}
 	
 	private void renderToBuffer() {
-		renderer.resetBindings();
+		shader.bind();
 		fb.bind(shader);
 		drawContent();
-		fb.texture.write("bla.png");
+		renderer.resetBindings();
 	}
 	
 	public void renderToScreen() {
-		renderer.resetBindings();
+		shader.bind();
 		main.bind(shader);
 		renderer.fillBackground();
 		fb.texture.bind();
-		renderer.drawQuads(fbQuad.getVaoId(), 4);
+		renderer.drawQuads(fbQuad.getVaoId(), fbQuad.vertices.size());
+		renderer.resetBindings();
 	}
 	
 	public abstract void drawContent();

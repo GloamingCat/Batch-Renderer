@@ -1,10 +1,11 @@
 package batching;
 
-class Obj {
-	Quad quad;
-	Transform transform;
-	float x, y;
-	float width, height;
+public class Obj {
+	
+	public final Quad quad;
+	public final Transform transform;
+	public final float x, y;
+	public final float width, height;
 	
 	public Obj(Quad quad, Transform transform, float x, float y, float width, float height) {
 		this.quad = quad;
@@ -17,15 +18,15 @@ class Obj {
 
 	public float[] getTransformedVertices() {
 		float[] p = new float[] {
-				0, 0, 			quad.x, quad.y + quad.height, 				// bottom left
-				width, 0, 		quad.x + quad.width, quad.y + quad.height, 	// bottom right
-				width, height, 	quad.x + quad.width, quad.y, 				// top right
-				0, height, 		quad.x, quad.y 							// top left
+				0, height, 			quad.x, quad.y + quad.height, 				// bottom left
+				width, height, 		quad.x + quad.width, quad.y + quad.height, 	// bottom right
+				width, 0, 	quad.x + quad.width, quad.y, 				// top right
+				0, 0, 		quad.x, quad.y 							// top left
 		};
 		for (int i = 0; i < p.length; i += 4) {
 			// Apply offset
-			p[i] -= transform.offsetX * 1.0f / quad.width;
-			p[i + 1] -= transform.offsetY * 1.0f / quad.height;
+			p[i] -= transform.offsetX;
+			p[i + 1] -= transform.offsetY;
 			// Apply scale
 			p[i] *= transform.scaleX / 100f;
 			p[i + 1] *= transform.scaleY / 100f;
@@ -51,21 +52,20 @@ class Obj {
 			try {
 				// Texture
 				quadVertices[q_offset + 2] = v[v_offset + 2] / texWidth;
-				quadVertices[q_offset + 3] = 1 - v[v_offset + 3] / texHeight;
+				quadVertices[q_offset + 3] = v[v_offset + 3] / texHeight;
 				// Color
-				// TODO: HSV
 				quadVertices[q_offset + 4] = transform.red / 255f;
 				quadVertices[q_offset + 5] = transform.green / 255f;
-				quadVertices[q_offset + 6] = transform.blue / 255;
+				quadVertices[q_offset + 6] = transform.blue / 255f;
 				quadVertices[q_offset + 7] = transform.alpha / 255f;
+				// HSV
+				quadVertices[q_offset + 8] = transform.hue;
+				quadVertices[q_offset + 9] = transform.saturation / 100f;
+				quadVertices[q_offset + 10] = transform.brightness / 100f;			
 			} catch (IndexOutOfBoundsException e) {}
 			q_offset += nFloats;
 		}
 		return quadVertices;
-	}
-	
-	public float[] getQuadVertices(float texWidth, float texHeight) {
-		return getQuadVertices(texWidth, texHeight, 8);
 	}
 	
 	public float[] getTriangleVertices(int texWidth, int texHeight, int nFloats) {

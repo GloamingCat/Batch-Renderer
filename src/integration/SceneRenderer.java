@@ -16,18 +16,20 @@ public class SceneRenderer {
 	private HashMap<String, Texture> loadedTextures;
 	private int width, height;
 	private VertexArray vertexArray;
+	private int nFloats;
 	
-	public SceneRenderer(int w, int h, ShaderProgram shader) {
+	public SceneRenderer(int w, int h, ShaderProgram shader, Renderer renderer) {
 		width = w;
 		height = h;
 		loadedTextures = new HashMap<String, Texture>();
-		renderer = new Renderer();
-		initRandom();
+		this.renderer = renderer;
+		init();
 		vertexArray = new VertexArray(scene.allObjects().size() * 4);
 		vertexArray.initVAO(shader.attributes, shader.vertexSize);
+		nFloats = shader.vertexSize / 4;
 	}
 	
-	private void initRandom() {
+	protected void init() {
 		Random rand = new Random(0);
 		scene = new Scene(1);
 		for (int i = 0; i < 10; i++) {
@@ -64,7 +66,6 @@ public class SceneRenderer {
 	}
 	
 	public void draw() {
-		final int nFloats = 4;
 		final int channels = 4;
 		renderer.setBackgroundColor(0, 43, 43, 0); // Dark green
 		renderer.fillBackground();

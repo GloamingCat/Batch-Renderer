@@ -81,6 +81,29 @@ public class Texture {
 		glGetTexImage(GL_TEXTURE_2D, 0, internalFormat, GL_UNSIGNED_BYTE, buffer);
 	}
 
+	public void write(String path, int channels) {
+		bind();
+		ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * channels);
+		writeData(buffer);
+		if (!STBImageWrite.stbi_write_png(path, width, height, channels, buffer, this.channels * width)) {
+			throw new RuntimeException("Failed to write texture: " + STBImage.stbi_failure_reason());
+		}
+	}
+	
+	public void write(String path) {
+		write(path, channels);
+	}
+	
+	public ByteBuffer toBuffer(int channels) {
+		bind();
+		ByteBuffer buffer = ByteBuffer.allocateDirect(width * height * channels);
+		writeData(buffer);
+		return buffer;
+	}
+	
+	//////////////////////////////////////////////////
+	// {{ Statis methods
+	
 	public static Texture load(String path, int channels) {
 		ByteBuffer image;
 		int width, height;
@@ -88,7 +111,6 @@ public class Texture {
 			IntBuffer w = stack.mallocInt(1);
 			IntBuffer h = stack.mallocInt(1);
 			IntBuffer c = stack.mallocInt(1);
-			//stbi_set_flip_vertically_on_load(true);
 			image = stbi_load(path, w, h, c, channels);
 			if (image == null)
 				throw new RuntimeException("Failed to load texture: " + stbi_failure_reason());
@@ -103,18 +125,16 @@ public class Texture {
 	public static Texture load(String path) {
 		return load(path, -1);
 	}
-
-	public void write(String path, int channels) {
-		bind();
-		ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * channels);
-		writeData(buffer);
-		if (!STBImageWrite.stbi_write_png("bla.png", width, height, channels, buffer, this.channels * width)) {
-			throw new RuntimeException("Failed to write texture: " + STBImage.stbi_failure_reason());
-		}
+	
+	public static Texture white(int alpha) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(4);
+		buffer.put(0, (byte) 255);
+		buffer.put(1, (byte) 255);
+		buffer.put(2, (byte) 255);
+		buffer.put(3, (byte) alpha);
+		return new Texture(1, 1, 4, buffer);
 	}
 	
-	public void write(String path) {
-		write(path, channels);
-	}
-
+	// }}
+	
 }

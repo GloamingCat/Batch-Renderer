@@ -1,6 +1,9 @@
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+
 import integration.FrameBufferRenderer;
 import integration.SceneRenderer;
 import rendering.Context;
+import rendering.Renderer;
 import rendering.Screen;
 import rendering.ShaderProgram;
 
@@ -15,6 +18,7 @@ public class IntegrationTest {
 	private ShaderProgram shader;
 	private FrameBufferRenderer fbRenderer;
 	private SceneRenderer sceneRenderer;
+	private Renderer renderer;
 	
 	public static void main(String[] args) {
 		new IntegrationTest().run();
@@ -35,14 +39,16 @@ public class IntegrationTest {
 	}
 	
 	private void init() {
-		try {
-			shader = new ShaderProgram();
-		} catch (Exception e) {
-			e.printStackTrace();
-			System.exit(1);
-		}
-		sceneRenderer = new SceneRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, shader);
-		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+		int[] attributes = new int[] {
+			GL_FLOAT, 4, 2,
+			GL_FLOAT, 4, 2,
+			GL_FLOAT, 4, 4,
+			GL_FLOAT, 4, 3
+		};
+		renderer = new Renderer();
+		shader = new ShaderProgram("vertShader.glsl", "fragShader.glsl", attributes);
+		sceneRenderer = new SceneRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, shader, renderer);
+		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT, true);
 		shader.bind();
 		fbRenderer = new FrameBufferRenderer(BUFFER_WIDTH, BUFFER_HEIGHT, screen, shader) {
 			@Override
@@ -50,7 +56,6 @@ public class IntegrationTest {
 				sceneRenderer.draw();
 			}
 		};
-		screen.bind(shader);
 	}
 	
 	private void clear() {

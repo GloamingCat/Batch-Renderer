@@ -14,30 +14,29 @@ public class ShaderProgram {
 	private static final String defaultVertShader = "#version 330 core\n" + 
 			"layout(location = 0) in vec2 position;\n" +
 			"layout(location = 1) in vec2 texCoords;\n" +
-	//		"in vec4 color;\n" + 
-	//		"out vec4 vertexColor;\n" + 
+			"layout(location = 2) in vec4 vertexColor;\n" + 
+			"out vec4 fragColor;\n" + 
 			"out vec2 fragTexCoords;\n" +
 			"uniform mat4 projection;\n" + 
-	//		"uniform mat4 view;\n" + 
-	//		"uniform mat4 model;\n" + 
 			"void main() {\n" + 
 			"    gl_Position = projection * vec4(position, 0.0, 1.0);\n" + 
 			"    fragTexCoords = texCoords;\n" + 
-			//		"    vertexColor = color;\n" + 
+			"    fragColor = vertexColor;\n" + 
 			"}";
 	private static final String defaultFragShader = "#version 330 core\n" + 
 			"in vec2 fragTexCoords;\n" + 
-	//		"in vec4 vertexColor;\n" + 
+			"in vec4 fragColor;\n" + 
 			"out vec4 color;\n" + 
 			"uniform sampler2D texture0;\n" + 
 			"void main() {\n" + 
 			"    vec4 textureColor = texture(texture0, fragTexCoords);\n" + 
-			"    color = textureColor;\n" + 
+			"    color = fragColor * textureColor;\n" + 
 			"}";
 
-	private static final int[] defaultAttributes = new int[] {
+	public static final int[] defaultAttributes = new int[] {
 		GL_FLOAT, 4, 2,
-		GL_FLOAT, 4, 2
+		GL_FLOAT, 4, 2,
+		GL_FLOAT, 4, 4
 	};
 	
 	private int id;
@@ -45,7 +44,6 @@ public class ShaderProgram {
 	public final int[] attributes;
 	public final int vertexSize;
 	
-
 	public ShaderProgram(int vertShader, int fragShader, int[] attributes, int nTextures) {
 		id = createProgram(vertShader, fragShader);
 		this.attributes = attributes;
@@ -73,11 +71,15 @@ public class ShaderProgram {
 		this.vertexSize = vertexSize;
 	}
 
-	public ShaderProgram(String vertShader, String fragShader, int[] attributes, int nTextures) throws Exception {
+	public ShaderProgram(String vertShader, String fragShader, int[] attributes, int nTextures) {
 		this(loadVertexShader(vertShader), loadFragmentShader(fragShader), attributes, nTextures);
 	}
+	
+	public ShaderProgram(String vertShader, String fragShader, int[] attributes) {
+		this(loadVertexShader(vertShader), loadFragmentShader(fragShader), attributes, 1);
+	}
 
-	public ShaderProgram() throws Exception {
+	public ShaderProgram() {
 		this(loadVertexShader(), loadFragmentShader(), defaultAttributes, 1);
 	}
 
@@ -108,40 +110,41 @@ public class ShaderProgram {
 		return shaderProgram;
 	}
 
-	public static int createShader(String shaderCode, int shaderType) throws Exception {
+	public static int createShader(String shaderCode, int shaderType) {
 		int shaderId = glCreateShader(shaderType);
 		glShaderSource(shaderId, shaderCode);
 		glCompileShader(shaderId);
 		if (glGetShaderi(shaderId, GL_COMPILE_STATUS) == GL_FALSE) {
-			throw new Exception("Shader compilation failed: " + glGetShaderInfoLog(shaderId));
+			throw new RuntimeException("Shader compilation failed: " + glGetShaderInfoLog(shaderId));
 		}
 		return shaderId;
 	}
 
-	public static int loadVertexShader(String name) throws Exception {
+	public static int loadVertexShader(String name) {
 		String shaderCode = readFileAsString(name);
 		return createShader(shaderCode, GL_VERTEX_SHADER);
 	}
 
-	public static int loadFragmentShader(String name) throws Exception {
+	public static int loadFragmentShader(String name) {
 		String shaderCode = readFileAsString(name);
 		return createShader(shaderCode, GL_FRAGMENT_SHADER);
 	}
 
-	public static int loadVertexShader() throws Exception {
+	public static int loadVertexShader() {
 		return createShader(defaultVertShader, GL_VERTEX_SHADER);
 	}
 
-	public static int loadFragmentShader() throws Exception {
+	public static int loadFragmentShader() {
 		return createShader(defaultFragShader, GL_FRAGMENT_SHADER);
 	}
 
-	private static String readFileAsString(String filename) throws Exception {
+	private static String readFileAsString(String filename) {
 		StringBuilder source = new StringBuilder();
-		FileInputStream in = new FileInputStream(filename);
 		Exception exception = null;
 		BufferedReader reader;
+		FileInputStream in = null;
 		try {
+			in = new FileInputStream(filename);
 			reader = new BufferedReader(new InputStreamReader(in,"UTF-8"));
 			Exception innerExc= null;
 			try {
@@ -180,8 +183,9 @@ public class ShaderProgram {
 					exc.printStackTrace();
 			}
 
-			if(exception != null)
-				throw exception;
+			if(exception != null) {
+				throw new RuntimeException("Shader file loading failed: " + filename);
+			}
 		}
 		return source.toString();
 	}

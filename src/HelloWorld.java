@@ -1,3 +1,5 @@
+import static org.lwjgl.opengl.GL11.GL_FLOAT;
+
 import rendering.*;
 
 public class HelloWorld {
@@ -10,7 +12,9 @@ public class HelloWorld {
 	private ShaderProgram shader;
 	
 	Texture ralsei;
+	Texture white;
 	VertexArray quad;
+	VertexArray path;
 	
 	public static void main(String[] args) {
 		new HelloWorld().run();
@@ -31,26 +35,39 @@ public class HelloWorld {
 	
 	private void init() {
 		try {
-			shader = new ShaderProgram();
+			int[] attributes = {
+				GL_FLOAT, 4, 2,
+				GL_FLOAT, 4, 2,
+				GL_FLOAT, 4, 4,
+				GL_FLOAT, 4, 3
+			};
+			shader = new ShaderProgram("vertShader.glsl", "fragShader.glsl", attributes);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);
 		}
 		ralsei = Texture.load("ralsei.png", 4);
-		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT);
+		white = Texture.white(255);
+		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT, true);
 		renderer = new Renderer();
-		renderer.setBackgroundColor(43, 43, 0, 0); // Dark yellow
+		renderer.setBackgroundColor(60, 60, 0, 0); // Dark yellow
 		quad = VertexArray.quad(0, 0, ralsei.width, ralsei.height);
 		quad.initVAO(shader.attributes, shader.vertexSize);
+		path = VertexArray.octagon(300, 300, 100, 50, 50, 20, 255, 255, 255, 255);
+		path.initVAO(shader.attributes, shader.vertexSize);
 		renderer.resetBindings();
 		shader.bind();
 		screen.bind(shader);
 	}
 	
 	private void drawTest() {
-		ralsei.bind();
+		shader.bind();
+		screen.bind(shader);
 		renderer.fillBackground();
-		renderer.drawQuads(quad.getVaoId(), 4);
+		white.bind();
+		renderer.drawPath(path.getVaoId(), path.vertices.size());
+		ralsei.bind();
+		renderer.drawQuads(quad.getVaoId(), quad.vertices.size());
 		renderer.resetBindings();
 	}
 	
