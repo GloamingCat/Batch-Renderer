@@ -33,10 +33,17 @@ public class ShaderProgram {
 			"    color = fragColor * textureColor;\n" + 
 			"}";
 
-	public static final int[] defaultAttributes = new int[] {
+	public static final int[] defaultShaderAttributes = new int[] {
 		GL_FLOAT, 4, 2,
 		GL_FLOAT, 4, 2,
 		GL_FLOAT, 4, 4
+	};
+	
+	public static final int[] defaultAttributes = new int[] {
+		GL_FLOAT, 4, 2,
+		GL_FLOAT, 4, 2,
+		GL_FLOAT, 4, 4,
+		GL_FLOAT, 4, 3
 	};
 	
 	private int id;
@@ -80,7 +87,11 @@ public class ShaderProgram {
 	}
 
 	public ShaderProgram() {
-		this(loadVertexShader(), loadFragmentShader(), defaultAttributes, 1);
+		this(loadVertexShader(), loadFragmentShader(), defaultShaderAttributes, 1);
+	}
+
+	public ShaderProgram(String vertShader, String fragShader) {
+		this(vertShader, fragShader, defaultAttributes);
 	}
 
 	public void bind() {
