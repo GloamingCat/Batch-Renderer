@@ -45,6 +45,23 @@ public class Scene {
 		return order;
 	}
 	
+	public ArrayList<Obj> allObjects(boolean flip) {
+		ArrayList<Obj> order = allObjects();
+		if (flip) {
+			for (int i = 0; i < order.size() / 2; i++) {
+				int j = order.size() - 1 - i;
+				Obj obj = order.get(i);
+				order.set(i, order.get(j));
+				order.set(j, obj);
+			}
+		}
+		return order;
+	}
+	
+	public BatchIterator getBatchIterator(boolean flip) {
+		return new BatchIterator(allObjects(flip));
+	}
+	
 	public BatchIterator getBatchIterator() {
 		return new BatchIterator(allObjects());
 	}

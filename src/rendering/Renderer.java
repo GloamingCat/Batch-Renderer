@@ -7,7 +7,7 @@ import static org.lwjgl.opengl.GL30.*;
 public class Renderer {
 
 	private float bgR, bgG, bgB, bgA;
-	private float pR, pG, pB, pA;
+	private float pR, pG, pB, pA, pSize = 2;
 
 	public Renderer() {	}
 
@@ -20,6 +20,10 @@ public class Renderer {
 
 	public void setPencilColor(float r, float g, float b, float a) {
 		pR = r; pG = g; pB = b; pA = a;
+	}
+	
+	public void setPencilSize(float size) {
+		pSize = size;
 	}
 
 	public void fillBackground() {
@@ -58,7 +62,7 @@ public class Renderer {
 	}
 	
 	public void drawPath(int vaoId, int n) {
-		glLineWidth(4);
+		glLineWidth(pSize);
 		glColor4f(pR / 255f, pG / 255f, pB / 255f, pA / 255f);
 		drawVertices(vaoId, n, GL_LINE_LOOP);
 	}

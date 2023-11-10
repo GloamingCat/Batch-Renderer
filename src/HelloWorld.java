@@ -53,7 +53,7 @@ public class HelloWorld {
 		renderer.setBackgroundColor(60, 60, 0, 0); // Dark yellow
 		quad = VertexArray.quad(0, 0, ralsei.width, ralsei.height);
 		quad.initVAO(shader.attributes, shader.vertexSize);
-		path = VertexArray.octagon(300, 300, 100, 50, 50, 20, 255, 255, 255, 255);
+		path = VertexArray.octagon(300, 300, 100, 50, 50, 20, 0, 255, 255, 255);
 		path.initVAO(shader.attributes, shader.vertexSize);
 		renderer.resetBindings();
 		shader.bind();
