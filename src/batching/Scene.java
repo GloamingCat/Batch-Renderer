@@ -7,13 +7,15 @@ public class Scene {
 	
 	private ArrayList<Obj>[] objects;
 	private int minDepth = 0;
-
+		
 	@SuppressWarnings("unchecked")
+	public Scene(int minDepth, int maxDepth) {
+		this.minDepth = minDepth;
+		objects = new ArrayList[maxDepth - minDepth + 1];
+	}
+	
 	public Scene(int depth) {
-		objects = new ArrayList[depth];
-		for (int i = 0; i < depth; i++) {
-			objects[i] = new ArrayList<>();
-		}
+		this(0, depth - 1);
 	}
 	
 	public void add(Quad quad, float x, float y, float width, float height, int depth) {
@@ -21,7 +23,10 @@ public class Scene {
 	}
 	
 	public void add(Quad quad, Transform transform, float x, float y, float width, float height, int depth) {
-		objects[depth + minDepth].add(new Obj(quad, transform, x, y, width, height));
+		depth -= minDepth;
+		if (objects[depth] == null)
+			objects[depth] = new ArrayList<>();
+		objects[depth].add(new Obj(quad, transform, x, y, width, height));
 	}
 	
 	public void shuffle() {
@@ -40,7 +45,8 @@ public class Scene {
 		ArrayList<Obj> order = new ArrayList<Obj>();
 		// TODO: optimize
 		for (ArrayList<Obj> list : objects) {
-			order.addAll(list);
+			if (list != null)
+				order.addAll(list);
 		}
 		return order;
 	}

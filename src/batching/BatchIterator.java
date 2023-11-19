@@ -22,10 +22,8 @@ public class BatchIterator {
 				break;
 		}
 		Batch batch = new Batch(j - i, texture);
-		//System.out.println("New batch: " + texture);
 		for (int k = 0; k < batch.objects.length; k++) {
 			batch.objects[k] = objects[k + i];
-			//System.out.println("Added obj");
 		}
 		i = j;
 		return batch;
