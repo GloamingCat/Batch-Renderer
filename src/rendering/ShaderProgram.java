@@ -5,8 +5,9 @@ import static org.lwjgl.opengl.GL20.*;
 
 import java.io.BufferedReader;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStreamReader;
-
+import java.io.UncheckedIOException;
 
 public class ShaderProgram {
 
@@ -56,7 +57,7 @@ public class ShaderProgram {
 		this.attributes = attributes;
 		glLinkProgram(id);
 		if (glGetProgrami(id, GL_LINK_STATUS) == GL_FALSE) {
-			throw new RuntimeException("Shader program linking failed: " + glGetProgramInfoLog(id));
+			throw new UnsatisfiedLinkError("Shader program linking failed: " + glGetProgramInfoLog(id));
 		}
 		bind();
 		//glBindFragDataLocation(id, 0, "color");
@@ -151,26 +152,23 @@ public class ShaderProgram {
 
 	private static String readFileAsString(String filename) {
 		StringBuilder source = new StringBuilder();
-		Exception exception = null;
+		IOException exception = null;
 		BufferedReader reader;
 		FileInputStream in = null;
 		try {
 			in = new FileInputStream(filename);
 			reader = new BufferedReader(new InputStreamReader(in,"UTF-8"));
-			Exception innerExc= null;
+			IOException innerExc= null;
 			try {
 				String line;
 				while((line = reader.readLine()) != null)
 					source.append(line).append('\n');
-			}
-			catch(Exception exc) {
+			} catch(IOException exc) {
 				exception = exc;
-			}
-			finally {
+			} finally {
 				try {
 					reader.close();
-				}
-				catch(Exception exc) {
+				} catch(IOException exc) {
 					if(innerExc == null)
 						innerExc = exc;
 					else
@@ -178,25 +176,22 @@ public class ShaderProgram {
 				}
 			}
 			if(innerExc != null)
-				throw innerExc;
+				throw new UncheckedIOException("Shader file loading failed: " + filename, innerExc);
 		}
-		catch(Exception exc) {
+		catch(IOException exc) {
 			exception = exc;
-		}
-		finally {
+		} finally {
 			try {
-				in.close();
-			}
-			catch(Exception exc) {
+				if (in != null)
+					in.close();
+			} catch(IOException exc) {
 				if(exception == null)
 					exception = exc;
 				else
 					exc.printStackTrace();
 			}
-
-			if(exception != null) {
-				throw new RuntimeException("Shader file loading failed: " + filename);
-			}
+			if(exception != null)
+				throw new UncheckedIOException("Shader file loading failed: " + filename, exception);
 		}
 		return source.toString();
 	}

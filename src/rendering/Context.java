@@ -8,7 +8,9 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 
 import org.lwjgl.opengl.GL;
 
-public abstract class Context {
+public class Context {
+	
+	private static boolean glfwInitialized = false;
 	
 	private long window;
 	private int width;
@@ -27,8 +29,11 @@ public abstract class Context {
 	}
 
 	public void init() {
-		if ( !glfwInit() )
-			throw new IllegalStateException("Unable to initialize GLFW");
+		if (!glfwInitialized) {
+			if ( !glfwInit() )
+				throw new IllegalStateException("Unable to initialize GLFW");
+			glfwInitialized = true;
+		}
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		//glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
@@ -59,11 +64,17 @@ public abstract class Context {
 		}
 	}
 	
+	public boolean isInitialized() {
+		return window != NULL;
+	}
+	
 	public void bind() {
 		glfwMakeContextCurrent(window);
 	}
 	
 	public void dispose() {
+		if (!glfwInitialized)
+			return;
 		if (window != NULL) {
 			glfwFreeCallbacks(window);
 			glfwDestroyWindow(window);
@@ -85,6 +96,6 @@ public abstract class Context {
 		}
 	}
 	
-	public abstract void render();
+	public void render() {}
 	
 }
