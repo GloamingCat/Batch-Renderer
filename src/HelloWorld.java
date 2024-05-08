@@ -2,6 +2,8 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
 
 import rendering.*;
 
+import java.io.IOException;
+
 public class HelloWorld {
 	
 	private final int WINDOW_WIDTH = 800;
@@ -46,8 +48,12 @@ public class HelloWorld {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		ralsei = Texture.load("ralsei.png", 4);
-		white = Texture.white(255);
+        try {
+            ralsei = Texture.load("ralsei.png", 4);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        white = Texture.white(255);
 		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT, true);
 		renderer = new Renderer();
 		renderer.setBackgroundColor(60, 60, 0, 0); // Dark yellow

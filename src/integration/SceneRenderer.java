@@ -1,5 +1,6 @@
 package integration;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 
@@ -11,17 +12,17 @@ import rendering.VertexArray;
 
 public class SceneRenderer {
 
-	private Renderer renderer;
+	private final Renderer renderer;
 	private Scene scene;
-	private HashMap<String, Texture> loadedTextures;
-	private int width, height;
-	private VertexArray vertexArray;
-	private int nFloats;
+	private final HashMap<String, Texture> loadedTextures;
+	private final int width, height;
+	private final VertexArray vertexArray;
+	private final int nFloats;
 	
 	public SceneRenderer(int w, int h, ShaderProgram shader, Renderer renderer) {
 		width = w;
 		height = h;
-		loadedTextures = new HashMap<String, Texture>();
+		loadedTextures = new HashMap<>();
 		this.renderer = renderer;
 		init();
 		vertexArray = new VertexArray(scene.allObjects().size() * 4);
@@ -74,8 +75,13 @@ public class SceneRenderer {
 			Batch batch = batches.next();
 			Texture texture = loadedTextures.get(batch.texturePath);
 			if (texture == null) {
-				texture = Texture.load(batch.texturePath, channels);
-				loadedTextures.put(batch.texturePath, texture);
+                try {
+                    texture = Texture.load(batch.texturePath, channels);
+					loadedTextures.put(batch.texturePath, texture);
+                } catch (IOException e) {
+                    e.printStackTrace();
+					continue;
+                }
 			}
 			int texWidth = texture.width;
 			int texHeight = texture.height;

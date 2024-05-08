@@ -7,10 +7,10 @@ import rendering.VertexArray;
 
 public abstract class FrameBufferRenderer {
 	
-	private Renderer renderer;
-	private Screen main, fb;
-	private ShaderProgram shader;
-	private VertexArray fbQuad;
+	private final Renderer renderer;
+	private final Screen main, fb;
+	private final ShaderProgram shader;
+	private final VertexArray fbQuad;
 
 	public FrameBufferRenderer(int width, int height, Screen main, ShaderProgram shader) {
 		this.shader = shader;

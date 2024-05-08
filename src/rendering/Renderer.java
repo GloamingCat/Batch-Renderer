@@ -12,7 +12,7 @@ public class Renderer {
 	public Renderer() {	}
 
 	//////////////////////////////////////////////////
-	// {{ State
+	//region State
 	
 	public void setBackgroundColor(float r, float g, float b, float a) {
 		bgR = r; bgG = g; bgB = b; bgA = a;
@@ -39,10 +39,10 @@ public class Renderer {
 		glUseProgram(0);
 	}
 
-	// }}
+	//endregion
 	
 	//////////////////////////////////////////////////
-	// {{ Mesh
+	//region Mesh
 	
 	public void drawVertices(int vaoId, int n, int mode) {
 		glBindVertexArray(vaoId);
@@ -67,7 +67,7 @@ public class Renderer {
 		drawVertices(vaoId, n, GL_LINE_LOOP);
 	}
 
-	// }}
+	//endregion
 
 	
 }

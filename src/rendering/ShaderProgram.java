@@ -127,7 +127,7 @@ public class ShaderProgram {
 		glShaderSource(shaderId, shaderCode);
 		glCompileShader(shaderId);
 		if (glGetShaderi(shaderId, GL_COMPILE_STATUS) == GL_FALSE) {
-			throw new RuntimeException("Shader compilation failed: " + glGetShaderInfoLog(shaderId));
+			throw new OpenGLException("Shader compilation failed: " + glGetShaderInfoLog(shaderId));
 		}
 		return shaderId;
 	}

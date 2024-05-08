@@ -1,5 +1,6 @@
 package rendering;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -56,7 +57,8 @@ public class Texture {
 	}
 
 	public void dispose() {
-		glDeleteTextures(id);
+		if (id != 0)
+			glDeleteTextures(id);
 	}
 
 	public void setLinearFilter() {
@@ -81,16 +83,16 @@ public class Texture {
 		glGetTexImage(GL_TEXTURE_2D, 0, internalFormat, GL_UNSIGNED_BYTE, buffer);
 	}
 
-	public void write(String path, int channels) {
+	public void write(String path, int channels) throws IOException {
 		bind();
 		ByteBuffer buffer = BufferUtils.createByteBuffer(width * height * channels);
 		writeData(buffer);
 		if (!STBImageWrite.stbi_write_png(path, width, height, channels, buffer, this.channels * width)) {
-			throw new RuntimeException("Failed to write texture: " + STBImage.stbi_failure_reason());
+			throw new IOException("Failed to write texture: " + STBImage.stbi_failure_reason());
 		}
 	}
 	
-	public void write(String path) {
+	public void write(String path) throws IOException {
 		write(path, channels);
 	}
 	
@@ -102,9 +104,9 @@ public class Texture {
 	}
 	
 	//////////////////////////////////////////////////
-	// {{ Statis methods
+	//region Static methods
 	
-	public static Texture load(String path, int channels) {
+	public static Texture load(String path, int channels) throws IOException {
 		ByteBuffer image;
 		int width, height;
 		try (MemoryStack stack = MemoryStack.stackPush()) {
@@ -113,7 +115,7 @@ public class Texture {
 			IntBuffer c = stack.mallocInt(1);
 			image = stbi_load(path, w, h, c, channels);
 			if (image == null)
-				throw new RuntimeException("Failed to load texture: " + stbi_failure_reason());
+				throw new IOException("Failed to load texture: " + stbi_failure_reason());
 			width = w.get();
 			height = h.get();
 			if (channels == -1)
@@ -122,7 +124,7 @@ public class Texture {
 		return new Texture(width, height, channels, image);
 	}
 	
-	public static Texture load(String path) {
+	public static Texture load(String path) throws IOException {
 		return load(path, -1);
 	}
 	
@@ -135,6 +137,6 @@ public class Texture {
 		return new Texture(1, 1, 4, buffer);
 	}
 	
-	// }}
+	//endregion
 	
 }

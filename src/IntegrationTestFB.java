@@ -1,6 +1,8 @@
 import rendering.*;
 import integration.*;
 
+import java.io.IOException;
+
 public class IntegrationTestFB {
 	
 	private final int WINDOW_WIDTH = 800;
@@ -42,8 +44,12 @@ public class IntegrationTestFB {
 		}
 		shader.bind();
 		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT, true);
-		ralsei = Texture.load("ralsei.png", 4);
-		renderer = new Renderer();
+        try {
+            ralsei = Texture.load("ralsei.png", 4);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        renderer = new Renderer();
 		renderer.setBackgroundColor(43, 43, 0, 0); // Dark yellow
 		quad = VertexArray.quad(0, 0, ralsei.width, ralsei.height);
 		quad.initVAO(shader.attributes, shader.vertexSize);

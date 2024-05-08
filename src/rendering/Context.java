@@ -28,19 +28,19 @@ public class Context {
 		this(width, height, "Hello World!");
 	}
 
-	public void init() {
+	public void init() throws OpenGLError {
 		if (!glfwInitialized) {
-			if ( !glfwInit() )
-				throw new IllegalStateException("Unable to initialize GLFW");
+			if (!glfwInit())
+				throw new OpenGLError("Unable to initialize GLFW");
 			glfwInitialized = true;
 		}
 		glfwDefaultWindowHints();
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 		//glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
 		window = glfwCreateWindow(width, height, name, NULL, NULL);
-		if ( window == NULL )
-			throw new RuntimeException("Failed to create the GLFW window");
-		
+		if (window == NULL)
+			throw new OpenGLError("Failed to create the GLFW window");
+
 		bind();
 		GL.createCapabilities();
 		
@@ -60,7 +60,7 @@ public class Context {
 		);
 		int error = glGetError();
 		if (error != GL_NO_ERROR) {
-			System.err.println("Context Error: " + error);
+			throw new OpenGLError("Context Error: " + error);
 		}
 	}
 	
@@ -70,6 +70,10 @@ public class Context {
 	
 	public void bind() {
 		glfwMakeContextCurrent(window);
+	}
+
+	public void unbind() {
+		glfwMakeContextCurrent(NULL);
 	}
 	
 	public void dispose() {
@@ -84,13 +88,13 @@ public class Context {
 	
 	public void show() {
 		if (window ==  NULL)
-			throw new RuntimeException("Context not initialized!");
+			throw new OpenGLException("Context not initialized!");
 		glfwShowWindow(window);
 		while ( !glfwWindowShouldClose(window) ) {
 			render();
 			int error = glGetError();
 			if (error != GL_NO_ERROR)
-				System.err.println("OpenGL Error: " + error);
+				throw new OpenGLError("" + error);
 			glfwSwapBuffers(window);
 			glfwPollEvents();
 		}

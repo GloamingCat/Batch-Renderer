@@ -2,10 +2,7 @@ import static org.lwjgl.opengl.GL11.GL_FLOAT;
 
 import integration.FrameBufferRenderer;
 import integration.SceneRenderer;
-import rendering.Context;
-import rendering.Renderer;
-import rendering.Screen;
-import rendering.ShaderProgram;
+import rendering.*;
 
 public class IntegrationTest {
 
@@ -18,9 +15,8 @@ public class IntegrationTest {
 	private ShaderProgram shader;
 	private FrameBufferRenderer fbRenderer;
 	private SceneRenderer sceneRenderer;
-	private Renderer renderer;
-	
-	public static void main(String[] args) {
+
+    public static void main(String[] args) {
 		new IntegrationTest().run();
 	}
 
@@ -45,7 +41,7 @@ public class IntegrationTest {
 			GL_FLOAT, 4, 4,
 			GL_FLOAT, 4, 3
 		};
-		renderer = new Renderer();
+        Renderer renderer = new Renderer();
 		shader = new ShaderProgram("vertShader.glsl", "fragShader.glsl", attributes);
 		sceneRenderer = new SceneRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, shader, renderer);
 		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT, true);

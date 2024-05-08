@@ -11,25 +11,25 @@ public class VertexArray {
 
 	public final ArrayList<Vertex> vertices;
 	
-	private int vaoId, vboId;
+	private int vaoId = 0, vboId = 0;
 	private int nFloats = Vertex.totalSize;
 	
 	//////////////////////////////////////////////////
-	// {{ Constructors
+	//region Constructors
 	
 	public VertexArray() {
-		vertices = new ArrayList<Vertex>();
+		vertices = new ArrayList<>();
 	}
 	
 	public VertexArray(int n) {
-		vertices = new ArrayList<Vertex>(n);
+		vertices = new ArrayList<>(n);
 		for (int i = 0; i < n; i++) {
 			vertices.add(new Vertex());
 		}
 	}
 	
 	public VertexArray(float[] data, int n) {
-		vertices = new ArrayList<Vertex>(n);
+		vertices = new ArrayList<>(n);
 		nFloats = data.length / n;
 		for (int i = 0; i < n; i++) {
 			Vertex vertex = new Vertex();
@@ -39,7 +39,7 @@ public class VertexArray {
 	}
 	
 	public VertexArray(int[] intData, int n) {
-		vertices = new ArrayList<Vertex>(n);
+		vertices = new ArrayList<>(n);
 		float[] data = new float[intData.length];
 		for (int i = 0; i < intData.length; i++)
 			data[i] = intData[i];
@@ -51,10 +51,10 @@ public class VertexArray {
 		}
 	}
 	
-	// }}
+	//endregion
 	
 	//////////////////////////////////////////////////
-	// {{ Data update
+	//region Data update
 	
 	public void set(float[] data, int n) {
 		nFloats = data.length / n;
@@ -92,10 +92,10 @@ public class VertexArray {
 		}
 	}
 	
-	// }}
+	//endregion
 	
 	//////////////////////////////////////////////////
-	// {{ Buffer
+	//region Buffer
 	
 	public float[] toArray() {
 		return toArray(nFloats);
@@ -117,10 +117,10 @@ public class VertexArray {
 		return buffer;
 	}
 	
-	// }}
+	//endregion
 	
 	//////////////////////////////////////////////////
-	// {{ VAO
+	//region VAO
 	
 	public int getVaoId() {
 		return vaoId;
@@ -159,7 +159,7 @@ public class VertexArray {
 	
 	public void updateVAO(float[] buffer) {
 		if (vaoId ==  NULL)
-			throw new RuntimeException("VAO not initialized!");
+			throw new OpenGLException("VAO not initialized!");
 		glBindVertexArray(vaoId);
 		glBindBuffer(GL_ARRAY_BUFFER, vboId);
 		glBufferData(GL_ARRAY_BUFFER, buffer, GL_DYNAMIC_DRAW);
@@ -186,14 +186,16 @@ public class VertexArray {
 	}
 	
 	public void dispose() {
-		glDeleteBuffers(vboId);
-		glDeleteVertexArrays(vaoId);
+		if (vboId != NULL)
+			glDeleteBuffers(vboId);
+		if (vaoId != NULL)
+			glDeleteVertexArrays(vaoId);
 	}
 	
-	// }}
+	//endregion
 
 	//////////////////////////////////////////////////
-	// {{ Static methods
+	//region Static methods
 
 	public static VertexArray quad(float x, float y, float w, float h) {
 		VertexArray array = new VertexArray(4);
@@ -233,10 +235,10 @@ public class VertexArray {
 		for (int i = 0 ; i < n; i++) {
 			data[i*8] = (float) pos[i*2];
 			data[i*8+1] = (float) pos[i*2+1];
-			data[i*8+4] = (float) r / 255f;
-			data[i*8+5] = (float) g / 255f;
-			data[i*8+6] = (float) b / 255f;
-			data[i*8+7] = (float) a / 255f;
+			data[i*8+4] = r / 255f;
+			data[i*8+5] = g / 255f;
+			data[i*8+6] = b / 255f;
+			data[i*8+7] = a / 255f;
 		}
 		return new VertexArray(data, 8);
 	}
@@ -256,6 +258,6 @@ public class VertexArray {
 		return polygon(pos, r, g, b, a);
 	}
 	
-	// }}
+	//endregion
 
 }

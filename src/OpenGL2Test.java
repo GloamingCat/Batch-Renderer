@@ -3,7 +3,9 @@ import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.system.MemoryUtil;
 import org.lwjgl.stb.STBImage;
+import rendering.OpenGLError;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
@@ -15,18 +17,18 @@ public class OpenGL2Test {
 	static final int WIDTH = 800;
 	static final int HEIGHT = 600;	
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		// Set up GLFW
 		if (!GLFW.glfwInit()) {
-			throw new IllegalStateException("Unable to initialize GLFW");
+			throw new OpenGLError("Unable to initialize GLFW");
 		}
 
 		GLFW.glfwDefaultWindowHints();
 		GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
 		long window = GLFW.glfwCreateWindow(WIDTH, HEIGHT, "Render PNG with LWJGL 3", MemoryUtil.NULL, MemoryUtil.NULL);
 		if (window == MemoryUtil.NULL) {
-			throw new RuntimeException("Failed to create the GLFW window");
+			throw new OpenGLError("Failed to create the GLFW window");
 		}
 
 		GLFW.glfwMakeContextCurrent(window);
@@ -48,7 +50,7 @@ public class OpenGL2Test {
 
 			imageBuffer = STBImage.stbi_load("ralsei.png", w, h, c, 4);
 			if (imageBuffer == null) {
-				throw new RuntimeException("Failed to load the image: " + STBImage.stbi_failure_reason());
+				throw new IOException("Failed to load the image: " + STBImage.stbi_failure_reason());
 			}
 			width = w.get(0);
 			height = h.get(0);
@@ -74,7 +76,7 @@ public class OpenGL2Test {
 		glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, bufferTextureId, 0);
 
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			throw new RuntimeException("Framebuffer is not complete");
+			throw new OpenGLError("Framebuffer is not complete");
 		}
 
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -118,9 +120,9 @@ public class OpenGL2Test {
 			glTexCoord2f(0, 0);
 			glVertex2f(0, 0);
 			glTexCoord2f(1, 0);
-			glVertex2f(WIDTH / 2, 0);
+			glVertex2f(WIDTH / 2.0f, 0);
 			glTexCoord2f(1, 1);
-			glVertex2f(WIDTH / 2, HEIGHT);
+			glVertex2f(WIDTH / 2.0f, HEIGHT);
 			glTexCoord2f(0, 1);
 			glVertex2f(0, HEIGHT);
 			glEnd();

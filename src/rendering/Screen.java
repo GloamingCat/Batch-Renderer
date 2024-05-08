@@ -4,6 +4,7 @@ import java.nio.FloatBuffer;
 
 import org.lwjgl.system.MemoryUtil;
 
+import static org.lwjgl.glfw.GLFW.glfwGetCurrentContext;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
@@ -14,12 +15,14 @@ public class Screen {
 
 	private final int id;
 	private final FloatBuffer projectionMatrixBuffer;
-	private final Matrix4f projectionMatrix;
 
-	public Screen(int width, int height, boolean isWindow) {
+    public Screen(int width, int height, boolean isWindow) throws OpenGLException {
 		this.width = width;
 		this.height = height;
-		if (isWindow) {
+		if (glfwGetCurrentContext() == 0)
+			throw new OpenGLException("No bound context.");
+        Matrix4f projectionMatrix;
+        if (isWindow) {
 			id = 0;
 			texture = null;
 			projectionMatrix = Matrix4f.orthographic(0, width, height, 0, 1, -1);

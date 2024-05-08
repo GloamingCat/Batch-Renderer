@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component inheritJdk="true">
+	<exclude-output/>
+	<contentEntry url="file://$MODULE_DIR$"/>
+	<lib name="lwjgl" scope="PROVIDED"/>
+	<levels>
+		<level name="lwjgl" value="project"/>
+	</levels>
+</component>

@@ -8,7 +8,10 @@ import rendering.Matrix4f;
 
 import org.lwjgl.stb.STBImage;
 import org.lwjgl.stb.STBImageWrite;
+import rendering.OpenGLError;
+import rendering.OpenGLException;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
@@ -22,21 +25,20 @@ public class OpenGL3Test {
 	static final int WIDTH = 800;
 	static final int HEIGHT = 600;
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws IOException {
 
 		//////////////////////////////////////////////////
-		// {{ Initialization
+		//region Initialization
 
 		if (!GLFW.glfwInit()) {
-			throw new IllegalStateException("Unable to initialize GLFW");
+			throw new OpenGLError("Unable to initialize GLFW");
 		}
 
 		GLFW.glfwDefaultWindowHints();
 		GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE);
 		long window = GLFW.glfwCreateWindow(WIDTH, HEIGHT, "Render PNG with LWJGL 3", MemoryUtil.NULL, MemoryUtil.NULL);
-		if (window == MemoryUtil.NULL) {
-			throw new RuntimeException("Failed to create the GLFW window");
-		}
+		if (window == MemoryUtil.NULL)
+			throw new OpenGLError("Failed to create the GLFW window");
 
 		GLFW.glfwMakeContextCurrent(window);
 		GL.createCapabilities();
@@ -47,10 +49,10 @@ public class OpenGL3Test {
 		glDisable(GL_CULL_FACE);
 		glDisable(GL_DEPTH_TEST);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		// }}
+		//endregion
 
 		//////////////////////////////////////////////////
-		// {{ Create shader
+		//region Create shader
 
 		// Load shaders (vertex and fragment)
 		String vertexShaderSource = "#version 330 core\n" +
@@ -67,7 +69,7 @@ public class OpenGL3Test {
 		glCompileShader(vertexShader);
 
 		if (glGetShaderi(vertexShader, GL_COMPILE_STATUS) == GL_FALSE) {
-			throw new RuntimeException("Vertex shader compilation failed: " + glGetShaderInfoLog(vertexShader));
+			throw new OpenGLException("Vertex shader compilation failed: " + glGetShaderInfoLog(vertexShader));
 		}
 
 		String fragmentShaderSource = "#version 330 core\n" +
@@ -82,7 +84,7 @@ public class OpenGL3Test {
 		glCompileShader(fragmentShader);
 
 		if (glGetShaderi(fragmentShader, GL_COMPILE_STATUS) == GL_FALSE) {
-			throw new RuntimeException("Fragment shader compilation failed: " + glGetShaderInfoLog(fragmentShader));
+			throw new OpenGLException("Fragment shader compilation failed: " + glGetShaderInfoLog(fragmentShader));
 		}
 
 		int shaderProgram = glCreateProgram();
@@ -91,12 +93,12 @@ public class OpenGL3Test {
 		glLinkProgram(shaderProgram);
 
 		if (glGetProgrami(shaderProgram, GL_LINK_STATUS) == GL_FALSE) {
-			throw new RuntimeException("Shader program linking failed: " + glGetProgramInfoLog(shaderProgram));
+			throw new OpenGLError("Shader program linking failed: " + glGetProgramInfoLog(shaderProgram));
 		}
-		// }}
+		//endregion
 		
 		//////////////////////////////////////////////////
-		// {{ Load Texture
+		//region Load Texture
 
 		// Load the PNG image using STBImage
 		ByteBuffer imageBuffer;
@@ -108,7 +110,7 @@ public class OpenGL3Test {
 			final IntBuffer c = stack.mallocInt(1);
 			imageBuffer = STBImage.stbi_load("ralsei.png", w, h, c, bpp);
 			if (imageBuffer == null) {
-				throw new RuntimeException("Failed to load the image: " + STBImage.stbi_failure_reason());
+				throw new IOException("Failed to load the image: " + STBImage.stbi_failure_reason());
 			}
 			width = w.get(0);
 			height = h.get(0);
@@ -141,10 +143,10 @@ public class OpenGL3Test {
 		glBufferData(GL_ARRAY_BUFFER, texVertices, GL_STATIC_DRAW);
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		// }}
+		//endregion
 		
 		//////////////////////////////////////////////////
-		// {{ Create Frame Buffer
+		//region Create Frame Buffer
 
 		// Bind buffer
 		int fboId = glGenFramebuffers();
@@ -165,7 +167,7 @@ public class OpenGL3Test {
 
 		// Un-bind buffer
 		if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
-			throw new RuntimeException("Framebuffer is not complete");
+			throw new OpenGLError("Framebuffer is not complete");
 		}
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
@@ -189,10 +191,10 @@ public class OpenGL3Test {
 		glVertexAttribPointer(1, 2, GL_FLOAT, false, 16, 8);
 		glBindVertexArray(0);
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
-		// }}
+		//endregion
 
 		//////////////////////////////////////////////////
-		// {{ Shader bindings
+		//region Shader bindings
 
 		// Bind program
 		glUseProgram(shaderProgram);
@@ -215,10 +217,10 @@ public class OpenGL3Test {
 
 		int projectionMatrixLocation = glGetUniformLocation(shaderProgram, "projectionMatrix");
 		
-		// }}
+		//endregion
 
 		//////////////////////////////////////////////////
-		// {{ Draw texture on buffer
+		//region Draw texture on buffer
 		glBindFramebuffer(GL_FRAMEBUFFER, fboId);
 		glUniformMatrix4fv(projectionMatrixLocation, false, bufferViewBuffer);
 
@@ -230,24 +232,24 @@ public class OpenGL3Test {
 		glBindVertexArray(vaoId);
 		glDrawArrays(GL_QUADS, 0, 4);
 		glBindVertexArray(0);
-		// }}
+		//endregion
 		
 		//////////////////////////////////////////////////
-		// {{ Draw buffer on screen
+		//region Draw buffer on screen
 		
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glUniformMatrix4fv(projectionMatrixLocation, false, screenViewBuffer);
 
 		//////////////////////////////////////////////////
-		// {{ Save buffer to file
+		//region Save buffer to file
 		glBindTexture(GL_TEXTURE_2D, bufferTextureId);
 		ByteBuffer byteBuffer = BufferUtils.createByteBuffer(fWidth * fHeight * bpp);
 		glGetTexImage(GL_TEXTURE_2D, 0, GL_RGBA, GL_UNSIGNED_BYTE, byteBuffer);
 		if (!STBImageWrite.stbi_write_png("bla.png", fWidth, fHeight, bpp, byteBuffer, bpp * fWidth)) {
-			throw new RuntimeException("Failed to save the image: " + STBImage.stbi_failure_reason());
+			throw new OpenGLException("Failed to save the image: " + STBImage.stbi_failure_reason());
 		}
 		glBindTexture(GL_TEXTURE_2D, 0);
-		// }}
+		//endregion
 		
 		// Main rendering loop
 		GLFW.glfwShowWindow(window);
@@ -265,17 +267,17 @@ public class OpenGL3Test {
 			// Check for OpenGL errors
 			int error = glGetError();
 			if (error != GL_NO_ERROR) {
-				System.err.println("OpenGL Error: " + error);
+				throw new OpenGLError(" " + error);
 			}
 
 			// Update the display
 			GLFW.glfwSwapBuffers(window);
 			GLFW.glfwPollEvents();
 		}
-		// }}
+		//endregion
 
 		//////////////////////////////////////////////////
-		// {{ Clean-up
+		//region Clean-up
 		glDeleteTextures(textureId);
 		glDeleteBuffers(vboId);
 		glDeleteVertexArrays(vaoId);
@@ -290,7 +292,7 @@ public class OpenGL3Test {
 		STBImage.stbi_image_free(imageBuffer);
 		GLFW.glfwDestroyWindow(window);
 		GLFW.glfwTerminate();
-		// }}
+		//endregion
 	}
 
 
