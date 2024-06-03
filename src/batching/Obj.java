@@ -31,8 +31,8 @@ public class Obj {
 			p[i] *= transform.scaleX / 100f;
 			p[i + 1] *= transform.scaleY / 100f;
 			// Apply rotation
-			double c = Math.cos(transform.rotation);
-			double s = Math.sin(transform.rotation);
+			double c = Math.cos(Math.toRadians(transform.rotation));
+			double s = Math.sin(Math.toRadians(transform.rotation));
 			double x = c * p[i] - s * p[i + 1];
 			double y = s * p[i] + c * p[i + 1];
 			p[i] = (float) x;

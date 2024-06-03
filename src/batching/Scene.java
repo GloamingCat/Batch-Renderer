@@ -5,8 +5,8 @@ import java.util.Random;
 
 public class Scene {
 	
-	private ArrayList<Obj>[] objects;
-	private int minDepth = 0;
+	private final ArrayList<Obj>[] objects;
+	private final int minDepth;
 		
 	@SuppressWarnings("unchecked")
 	public Scene(int minDepth, int maxDepth) {
@@ -24,6 +24,10 @@ public class Scene {
 	
 	public void add(Quad quad, Transform transform, float x, float y, float width, float height, int depth) {
 		depth -= minDepth;
+		if (depth < 0 || depth >= objects.length) {
+			System.err.println("Object depth " + depth + " out of bounds for length " + objects.length);
+			return;
+		}
 		if (objects[depth] == null)
 			objects[depth] = new ArrayList<>();
 		objects[depth].add(new Obj(quad, transform, x, y, width, height));
@@ -42,7 +46,7 @@ public class Scene {
 	}
 	
 	public ArrayList<Obj> allObjects() {
-		ArrayList<Obj> order = new ArrayList<Obj>();
+		ArrayList<Obj> order = new ArrayList<>();
 		// TODO: optimize
 		for (ArrayList<Obj> list : objects) {
 			if (list != null)
