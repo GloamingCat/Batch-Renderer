@@ -4,11 +4,12 @@ import java.util.ArrayList;
 
 public class BatchIterator {
 	
-	private Obj[] objects;
+	private final Obj[] objects;
 	private int i;
 
 	public BatchIterator(ArrayList<Obj> objects) {
-		this.objects = objects.toArray(new Obj[objects.size()]);
+		this.objects = new Obj[objects.size()];
+		objects.toArray(this.objects);
 		this.i = 0;
 	}
 	
@@ -22,9 +23,7 @@ public class BatchIterator {
 				break;
 		}
 		Batch batch = new Batch(j - i, texture);
-		for (int k = 0; k < batch.objects.length; k++) {
-			batch.objects[k] = objects[k + i];
-		}
+        System.arraycopy(objects, i, batch.objects, 0, batch.objects.length);
 		i = j;
 		return batch;
 	}

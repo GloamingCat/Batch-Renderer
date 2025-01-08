@@ -22,8 +22,7 @@ public class Batch {
 		float[] vertices = new float[objects.length * 4 * nFloats];
 		for (int i = 0; i < objects.length; i++) {
 			float[] objVertices = objects[i].getQuadVertices(width, height, nFloats);
-			for (int k = 0; k < objVertices.length; k++)
-				vertices[i * objVertices.length + k] = objVertices[k];
+            System.arraycopy(objVertices, 0, vertices, i * objVertices.length, objVertices.length);
 		}
 		return vertices;
 	}
@@ -36,8 +35,7 @@ public class Batch {
 		float[] vertices = new float[objects.length * 6 * nFloats];
 		for (int i = 0; i < objects.length; i++) {
 			float[] objVertices = objects[i].getTriangleVertices(width, height, nFloats);
-			for (int k = 0; k < objVertices.length; k++)
-				vertices[i * objVertices.length + k] = objVertices[k];
+            System.arraycopy(objVertices, 0, vertices, i * objVertices.length, objVertices.length);
 		}
 		return vertices;
 	}

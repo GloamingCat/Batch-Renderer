@@ -1,6 +1,6 @@
 package batching;
 
-public class Quad {
+public class Quad implements Cloneable {
 	
 	// Texture
 	public String path = "";
@@ -22,7 +22,17 @@ public class Quad {
 	}
 	
 	public Quad clone() {
-		return new Quad(path, x, y, width, height);
+		try {
+			Quad quad = (Quad) super.clone();
+			quad.x = x;
+			quad.y = y;
+			quad.path = path;
+			quad.width = width;
+			quad.height = height;
+			return quad;
+		} catch (CloneNotSupportedException e) {
+			return new Quad(path, x, y, width, height);
+		}
 	}
 	
 }

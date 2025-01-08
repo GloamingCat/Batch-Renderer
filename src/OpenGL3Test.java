@@ -55,15 +55,16 @@ public class OpenGL3Test {
 		//region Create shader
 
 		// Load shaders (vertex and fragment)
-		String vertexShaderSource = "#version 330 core\n" +
-				"layout(location = 0) in vec2 position;\n" +
-				"layout(location = 1) in vec2 texCoords;\n" +
-				"out vec2 fragTexCoords;\n" +
-				"uniform mat4 projectionMatrix;\n" +
-				"void main() {\n" +
-				"    gl_Position = projectionMatrix * vec4(position, 0.0, 1.0);\n" +
-				"    fragTexCoords = texCoords;\n" +
-				"}";
+		String vertexShaderSource = """
+                #version 330 core
+                layout(location = 0) in vec2 position;
+                layout(location = 1) in vec2 texCoords;
+                out vec2 fragTexCoords;
+                uniform mat4 projectionMatrix;
+                void main() {
+                    gl_Position = projectionMatrix * vec4(position, 0.0, 1.0);
+                    fragTexCoords = texCoords;
+                }""";
 		int vertexShader = glCreateShader(GL_VERTEX_SHADER);
 		glShaderSource(vertexShader, vertexShaderSource);
 		glCompileShader(vertexShader);
@@ -72,13 +73,14 @@ public class OpenGL3Test {
 			throw new OpenGLException("Vertex shader compilation failed: " + glGetShaderInfoLog(vertexShader));
 		}
 
-		String fragmentShaderSource = "#version 330 core\n" +
-				"in vec2 fragTexCoords;\n" +
-				"out vec4 color;\n" +
-				"uniform sampler2D textureSampler;\n" +
-				"void main() {\n" +
-				"    color = texture(textureSampler, fragTexCoords);\n" +
-				"}";
+		String fragmentShaderSource = """
+                #version 330 core
+                in vec2 fragTexCoords;
+                out vec4 color;
+                uniform sampler2D textureSampler;
+                void main() {
+                    color = texture(textureSampler, fragTexCoords);
+                }""";
 		int fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
 		glShaderSource(fragmentShader, fragmentShaderSource);
 		glCompileShader(fragmentShader);

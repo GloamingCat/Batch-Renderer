@@ -62,7 +62,7 @@ public class Obj {
 				quadVertices[q_offset + 8] = transform.hue / 360f;
 				quadVertices[q_offset + 9] = transform.saturation / 100f;
 				quadVertices[q_offset + 10] = transform.brightness / 100f;			
-			} catch (IndexOutOfBoundsException e) {}
+			} catch (IndexOutOfBoundsException ignored) {}
 			q_offset += nFloats;
 		}
 		return quadVertices;

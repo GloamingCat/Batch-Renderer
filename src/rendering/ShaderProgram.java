@@ -3,36 +3,35 @@ package rendering;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL20.*;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.UncheckedIOException;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 
 public class ShaderProgram {
 
 	// https://github.com/SilverTiger/lwjgl3-tutorial/
-	private static final String defaultVertShader = "#version 330 core\n" + 
-			"layout(location = 0) in vec2 position;\n" +
-			"layout(location = 1) in vec2 texCoords;\n" +
-			"layout(location = 2) in vec4 vertexColor;\n" + 
-			"out vec4 fragColor;\n" + 
-			"out vec2 fragTexCoords;\n" +
-			"uniform mat4 projection;\n" + 
-			"void main() {\n" + 
-			"    gl_Position = projection * vec4(position, 0.0, 1.0);\n" + 
-			"    fragTexCoords = texCoords;\n" + 
-			"    fragColor = vertexColor;\n" + 
-			"}";
-	private static final String defaultFragShader = "#version 330 core\n" + 
-			"in vec2 fragTexCoords;\n" + 
-			"in vec4 fragColor;\n" + 
-			"out vec4 color;\n" + 
-			"uniform sampler2D texture0;\n" + 
-			"void main() {\n" + 
-			"    vec4 textureColor = texture(texture0, fragTexCoords);\n" + 
-			"    color = fragColor * textureColor;\n" + 
-			"}";
+	private static final String defaultVertShader = """
+            #version 330 core
+            layout(location = 0) in vec2 position;
+            layout(location = 1) in vec2 texCoords;
+            layout(location = 2) in vec4 vertexColor;
+            out vec4 fragColor;
+            out vec2 fragTexCoords;
+            uniform mat4 projection;
+            void main() {
+                gl_Position = projection * vec4(position, 0.0, 1.0);
+                fragTexCoords = texCoords;
+                fragColor = vertexColor;
+            }""";
+	private static final String defaultFragShader = """
+            #version 330 core
+            in vec2 fragTexCoords;
+            in vec4 fragColor;
+            out vec4 color;
+            uniform sampler2D texture0;
+            void main() {
+                vec4 textureColor = texture(texture0, fragTexCoords);
+                color = fragColor * textureColor;
+            }""";
 
 	public static final int[] defaultShaderAttributes = new int[] {
 		GL_FLOAT, 4, 2,
@@ -47,7 +46,7 @@ public class ShaderProgram {
 		GL_FLOAT, 4, 3
 	};
 	
-	private int id;
+	private final int id;
 
 	public final int[] attributes;
 	public final int vertexSize;
@@ -152,46 +151,21 @@ public class ShaderProgram {
 
 	private static String readFileAsString(String filename) {
 		StringBuilder source = new StringBuilder();
-		IOException exception = null;
-		BufferedReader reader;
-		FileInputStream in = null;
-		try {
-			in = new FileInputStream(filename);
-			reader = new BufferedReader(new InputStreamReader(in,"UTF-8"));
-			IOException innerExc= null;
-			try {
+		ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+		try (InputStream in = classloader.getResourceAsStream(filename)) {
+			if (in == null) {
+				System.err.println("Couldn't find shader file: " + filename);
+				return "";
+			}
+			try (BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8))) {
 				String line;
-				while((line = reader.readLine()) != null)
-					source.append(line).append('\n');
-			} catch(IOException exc) {
-				exception = exc;
-			} finally {
-				try {
-					reader.close();
-				} catch(IOException exc) {
-					if(innerExc == null)
-						innerExc = exc;
-					else
-						exc.printStackTrace();
-				}
+				while((line =reader.readLine())!=null)
+						source.append(line).append('\n');
+			} catch (IOException e) {
+				System.err.println("Shader file loading failed: " + filename);
 			}
-			if(innerExc != null)
-				throw new UncheckedIOException("Shader file loading failed: " + filename, innerExc);
-		}
-		catch(IOException exc) {
-			exception = exc;
-		} finally {
-			try {
-				if (in != null)
-					in.close();
-			} catch(IOException exc) {
-				if(exception == null)
-					exception = exc;
-				else
-					exc.printStackTrace();
-			}
-			if(exception != null)
-				throw new UncheckedIOException("Shader file loading failed: " + filename, exception);
+		} catch (IOException e) {
+			System.err.println("Couldn't find shader file: " + filename);
 		}
 		return source.toString();
 	}

@@ -42,7 +42,7 @@ public class IntegrationBatchTest {
 					GL_FLOAT, 4, 4,
 					GL_FLOAT, 4, 3
 				};
-				shader = new ShaderProgram("vertShader.glsl", "fragShader.glsl", attributes);
+				shader = new ShaderProgram("shaders/vertShader.glsl", "shaders/fragShader.glsl", attributes);
 		} catch (Exception e) {
 			e.printStackTrace();
 			System.exit(1);

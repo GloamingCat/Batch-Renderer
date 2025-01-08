@@ -42,7 +42,7 @@ public class IntegrationTest {
 			GL_FLOAT, 4, 3
 		};
         Renderer renderer = new Renderer();
-		shader = new ShaderProgram("vertShader.glsl", "fragShader.glsl", attributes);
+		shader = new ShaderProgram("shaders/vertShader.glsl", "shaders/fragShader.glsl", attributes);
 		sceneRenderer = new SceneRenderer(WINDOW_WIDTH, WINDOW_HEIGHT, shader, renderer);
 		screen = new Screen(WINDOW_WIDTH, WINDOW_HEIGHT, true);
 		shader.bind();

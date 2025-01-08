@@ -19,7 +19,12 @@ public class Transform {
 	public int brightness = 100;
 	
 	public Transform clone() {
-		Transform t = new Transform();
+		Transform t;
+		try {
+			t = (Transform) super.clone();
+		} catch (CloneNotSupportedException e) {
+			t = new Transform();
+		}
 		t.offsetX = offsetX;
 		t.offsetY = offsetY;
 		t.scaleX = scaleX;
